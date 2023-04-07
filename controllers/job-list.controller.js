@@ -22,14 +22,16 @@ const getJobList = asyncHandler(async (req, res) => {
             const origins = Array.from(
                 new Set(records.map((record) => record.fields['Origin']))
             ).map((origin) => ({
-                [origin]: Array.from(
+                originName: origin ,
+                personnelCategories: Array.from(
                     new Set(
                         records
                             .filter((record) => record.fields['Origin'] === origin)
                             .map((record) => record.fields['Personnel category'])
                     )
                 ).map((category) => ({
-                    [category]: Array.from(
+                    personnelCategory: category ,
+                    personnelTypes: Array.from(
                         new Set(
                             records
                                 .filter(
@@ -40,7 +42,8 @@ const getJobList = asyncHandler(async (req, res) => {
                                 .map((record) => record.fields['Personnel type'])
                         )
                     ).map((type) => ({
-                        [type]: Array.from(
+                        personnelType: type,
+                        jobs: Array.from(
                             new Set(
                                 records
                                     .filter(
@@ -52,7 +55,8 @@ const getJobList = asyncHandler(async (req, res) => {
                                     .map((record) => record.fields['Job category'])
                             )
                         ).map((job) => ({
-                            [job]: Array.from(
+                            jobCategory: job,
+                            jobData: Array.from(
                                 new Set(
                                     records
                                         .filter(
