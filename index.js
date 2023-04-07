@@ -2,6 +2,8 @@ const express = require('express')
 const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
 const cors = require('cors')
+const skillsRouter = require('./routes/job-list.route')
+require('dotenv').config()
 
 const app = express()
 
@@ -10,14 +12,11 @@ app.use(cookieParser())
 app.use(express.urlencoded({ extended: false }))
 app.use(cors())
 
-app.get('/api/user', (req, res) => {
-    res.status(200).send({
-        firstName: 'Jamil',
-        lastName: 'BEN BRAHIM',
-        occupation: 'Software developer'
-    })
-})
 
-app.listen(3000, () => {
-    console.log('Server running on port 3000 ...')
+app.use('/api', skillsRouter)
+
+const port = process.env.PORT || 3100
+
+app.listen(port, () => {
+    console.log(`Server running on port ${process.env.PORT} ...`)
 })
