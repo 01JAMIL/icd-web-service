@@ -89,11 +89,8 @@ const getJobSkills = asyncHandler(async (req, res) => {
     const base = new Airtable({ apiKey: 'keygaICcTa39pAF3L' }).base('appyZ7I2KEOqvOl6o')
 
     const { jobCode } = req.params
-    console.log(req.params)
     const field = await fetchFieldName(jobCode)
-    let methodologyData = []
-    let technologyData = []
-    let relatedKnowledgeData = []
+    let data = []
 
     await base('Job x Skill V4').select({
         view: "Grid view"
@@ -101,24 +98,41 @@ const getJobSkills = asyncHandler(async (req, res) => {
 
         records.forEach(function (record, index) {
             if (index >= 3 && record.get(field) !== undefined) {
-
-                if (record.get('Skill Category') === 'Methodology') {
-                    methodologyData.push(record.get('Skill Item'))
-                } else if (record.get('Skill Category') === 'Technology') {
-                    technologyData.push(record.get('Skill Item'))
-                } else {
-                    relatedKnowledgeData.push(record.get('Skill Item'))
-                }
+                data.push(record)
             }
         })
         fetchNextPage();
     })
 
-    res.status(200).json({
-        Methodology: methodologyData,
-        Technology: technologyData,
-        RelatedKnowledge: relatedKnowledgeData
-    })
+
+    const tasks = Array.from(
+        new Set(data.map(record => record.fields['Skill Category']))
+    ).map(skillCategory => ({
+        [skillCategory]: Array.from(
+            new Set(
+                data
+                    .filter(record => record.fields['Skill Category'] === skillCategory)
+                    .map(record => record.fields['Skill Classification'])
+            )
+        ).map(skillClass => ({
+            skillClassification: skillClass,
+            skillItems: Array.from(
+                data
+                    .filter(record =>
+                        record.fields['Skill Category'] === skillCategory &&
+                        record.fields['Skill Classification'] === skillClass
+                    ).map(record => record.fields['Skill Item'])
+            )
+        }))
+    }))
+
+    const updatedStucture = tasks.reduce((acc, curr) => {
+        const key = Object.keys(curr)[0];
+        acc[key] = curr[key];
+        return acc;
+    }, {});
+
+    res.status(200).json(updatedStucture)
 })
 
 
