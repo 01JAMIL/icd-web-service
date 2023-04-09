@@ -2,15 +2,15 @@ const asyncHandler = require('express-async-handler')
 const Airtable = require('airtable')
 
 
-const apiKey = 'keyejkeuF9jspcPBZ'
-const baseId = 'appB08jCuPXfk2n9Q'
-
-const base = new Airtable({ apiKey: apiKey }).base(baseId)
-
-const table = base('JobList')
-const view = 'Grid view'
-
 const getJobList = asyncHandler(async (req, res) => {
+    const apiKey = 'keyejkeuF9jspcPBZ'
+    const baseId = 'appB08jCuPXfk2n9Q'
+
+    const base = new Airtable({ apiKey: apiKey }).base(baseId)
+
+    const table = base('JobList')
+    const view = 'Grid view'
+
 
     await table
         .select({
@@ -22,7 +22,7 @@ const getJobList = asyncHandler(async (req, res) => {
             const origins = Array.from(
                 new Set(records.map((record) => record.fields['Origin']))
             ).map((origin) => ({
-                originName: origin ,
+                originName: origin,
                 personnelCategories: Array.from(
                     new Set(
                         records
@@ -30,7 +30,7 @@ const getJobList = asyncHandler(async (req, res) => {
                             .map((record) => record.fields['Personnel category'])
                     )
                 ).map((category) => ({
-                    personnelCategory: category ,
+                    personnelCategory: category,
                     personnelTypes: Array.from(
                         new Set(
                             records
@@ -85,6 +85,73 @@ const getJobList = asyncHandler(async (req, res) => {
 })
 
 
+const getJobSkills = asyncHandler(async (req, res) => {
+    const base = new Airtable({ apiKey: 'keygaICcTa39pAF3L' }).base('appyZ7I2KEOqvOl6o')
+
+    const { jobCode } = req.body
+    const field = await fetchFieldName(jobCode)
+    let methodologyData = []
+    let technologyData = []
+    let relatedKnowledgeData = []
+
+    await base('Job x Skill V4').select({
+        view: "Grid view"
+    }).eachPage(function page(records, fetchNextPage) {
+
+        records.forEach(function (record, index) {
+            if (index >= 3 && record.get(field) !== undefined) {
+
+                if (record.get('Skill Category') === 'Methodology') {
+                    methodologyData.push(record.get('Skill Item'))
+                } else if (record.get('Skill Category') === 'Technology') {
+                    technologyData.push(record.get('Skill Item'))
+                } else {
+                    relatedKnowledgeData.push(record.get('Skill Item'))
+                }
+            }
+        })
+        fetchNextPage();
+    })
+
+    res.status(200).json({
+        Methodology: methodologyData,
+        Technology: technologyData,
+        RelatedKnowledge: relatedKnowledgeData
+    })
+})
+
+
+
+
+const fetchFieldName = async (jobCode) => {
+    const base = new Airtable({ apiKey: 'keygaICcTa39pAF3L' }).base('appyZ7I2KEOqvOl6o')
+    let value = ''
+
+    await base('Job x Skill V4').select({
+        maxRecords: 3,
+        view: "Grid view"
+    }).eachPage(function page(records, fetchNextPage) {
+
+        records.forEach(function (record, index) {
+            if (index === 2) {
+                for (const item in record.fields) {
+
+                    if (record.fields[item] === jobCode) {
+                        value = item
+                        break
+                    }
+                }
+            }
+        })
+
+
+        fetchNextPage();
+    })
+
+    return value
+}
+
 module.exports = {
-    getJobList
+    getJobList,
+    getJobSkills
 }
