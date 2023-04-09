@@ -3,6 +3,6 @@ const router = express.Router()
 const { getJobList, getJobSkills } = require('../controllers/job-list.controller')
 
 router.get('/jobs', getJobList)
-router.get('/jobxskill', getJobSkills)
+router.get('/jobxskill/:jobCode', getJobSkills)
 
 module.exports = router
