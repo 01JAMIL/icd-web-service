@@ -67,7 +67,8 @@ const getJobList = asyncHandler(async (req, res) => {
                                                 record.fields['Job category'] === job
                                         )
                                         .map((record) => ({
-                                            [record.fields['Job code 2']]: record.fields['Specialized field'] !== '-' ? record.fields['Specialized field'] : job,
+                                            jobCode: record.fields['Job code 2'] ,
+                                            jobName: record.fields['Specialized field'] !== '-' ? record.fields['Specialized field'] : job,
                                             comment: record.fields['Comment']
                                         }))
                                 )
