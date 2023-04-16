@@ -2,7 +2,7 @@ const express = require('express')
 const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
 const cors = require('cors')
-const skillsRouter = require('./routes/job-list.route')
+const skillsRouter = require('./routes/skills.route')
 const tasksRouter = require('./routes/tasks.route')
 require('dotenv').config()
 
@@ -14,12 +14,11 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cors())
 
 
-app.use('/api', skillsRouter)
-app.use('/api', tasksRouter)
+app.use('/api/skills', skillsRouter)
+app.use('/api/tasks', tasksRouter)
 
 const port = process.env.PORT || 3100
 
 app.listen(port, () => {
     console.log(`Server running on port ${port} ...`)
-    console.log(`http://localhost:${port}/api`)
 })

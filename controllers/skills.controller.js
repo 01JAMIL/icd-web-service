@@ -89,8 +89,8 @@ const getJobList = asyncHandler(async (req, res) => {
 const getJobSkills = asyncHandler(async (req, res) => {
     const base = new Airtable({ apiKey: 'keygaICcTa39pAF3L' }).base('appyZ7I2KEOqvOl6o')
 
-    const { jobCode } = req.params
-    const field = await fetchFieldName(jobCode)
+    const { jobcode } = req.params
+    const field = await fetchFieldName(jobcode)
     let data = []
 
     await base('Job x Skill V4').select({
