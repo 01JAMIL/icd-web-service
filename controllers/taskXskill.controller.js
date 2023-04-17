@@ -31,6 +31,7 @@ const getFieldName = async (skillClassification) => {
 
 const getSkillsTasks = asyncHandler(async (req, res) => {
 
+
     const apiKey = 'keygaICcTa39pAF3L'
     const baseId = 'appM0M0J8QrVCmIa8'
 
@@ -39,34 +40,59 @@ const getSkillsTasks = asyncHandler(async (req, res) => {
     const table = base('TaskxSkillMC')
     const view = 'Grid view'
 
-    const skillClassifications = [
-        '(Strategy) Market opportunity evaluation and selection',
-        '(Strategy) Marketing',
-        '(Strategy) Product and service strategy',
-        '(Strategy) Sales strategy',
-        '(Strategy) Product and service development strategy',
-        '(Support) Change management methods',
-        'Business industry',
-        'Corporate activities'
-    ]
+    const skillClassifications = req.body.data
 
     await table.select({
         view,
         pageSize: 100
     }).all().then(async (records) => {
-        console.log(records.length)
         let result = []
-
         for (let index = 0; index < skillClassifications.length; index++) {
             const fieldName = await getFieldName(skillClassifications[index])
+            const skillCategory = records[0].fields[fieldName]
+
             let skillClassificationData = []
             for (let recIndex = 2; recIndex < records.length; recIndex++) {
                 if (records[recIndex].fields[fieldName] !== undefined) {
-                    skillClassificationData.push(records[recIndex].fields)
+                    skillClassificationData.push(records[recIndex])
                 }
             }
 
-            result.push(skillClassificationData)
+
+            const filtredSillClassificationData = Array.from(
+                new Set(skillClassificationData.map(record => record.fields['Task Major Category']))
+            ).map((taskMajorCategory) => ({
+                [taskMajorCategory]: Array.from(
+                    new Set(
+                        skillClassificationData
+                            .filter(record => record.fields['Task Major Category'] === taskMajorCategory)
+                            .map(record => record.fields['Task Middle Category Code'])
+                    )
+                ).map((taskMiddleCategoryCode) => ({
+                    [taskMiddleCategoryCode]: skillClassificationData
+                        .filter(record =>
+                            record.fields['Task Major Category'] === taskMajorCategory &&
+                            record.fields['Task Middle Category Code'] === taskMiddleCategoryCode
+                        ).map(record => record.fields['Task Middle Category'])[0]
+                }))
+            }))
+
+
+            result.push({
+                skillClassificationCode: fieldName ,
+                skillCategory: skillCategory,
+                skillClassification: skillClassifications[index],
+                tasks: filtredSillClassificationData
+            })
+
+            /** Structure
+             * {
+             *      skillClassificationCode: '' ,
+             *      skillCategory: '',
+             *      skillClassification: '',
+             *      tasks: [] // Linkage informations between Task middle category in Task dictionary and Skill Classification in Skill dictionary.
+             * }
+             */
         }
 
         res.status(200).json(result)
