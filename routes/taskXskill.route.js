@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const { getSkillsTasks } = require('../controllers/taskXskill.controller')
+const { getSkillsTasksMiddleCategory, getSkillsTasksMinorCategory } = require('../controllers/taskXskill.controller')
 
-router.post('/get-tasks-x-skills-middle', getSkillsTasks)
+router.post('/get-tasks-x-skills-middle', getSkillsTasksMiddleCategory)
+router.post('/get-tasks-x-skills-minor', getSkillsTasksMinorCategory)
 
 module.exports = router 

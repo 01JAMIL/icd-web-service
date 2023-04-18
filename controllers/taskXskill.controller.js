@@ -1,35 +1,7 @@
 const Airtable = require('airtable')
 const asyncHandler = require('express-async-handler')
 
-
-const getFieldName = async (skillClassification) => {
-    const base = new Airtable({ apiKey: 'keygaICcTa39pAF3L' }).base('appM0M0J8QrVCmIa8')
-    let value = ''
-    await base('TaskxSkillMC').select({
-        maxRecords: 3,
-        view: "Grid view"
-    }).eachPage(function page(records, fetchNextPage) {
-
-        records.forEach(function (record, index) {
-            if (index === 1) {
-                for (const item in record.fields) {
-
-                    if (record.fields[item] === skillClassification) {
-                        value = item
-                        break
-                    }
-                }
-            }
-        })
-
-        fetchNextPage()
-    })
-
-    return value
-}
-
-
-const getSkillsTasks = asyncHandler(async (req, res) => {
+const getSkillsTasksMiddleCategory = asyncHandler(async (req, res) => {
 
 
     const apiKey = 'keygaICcTa39pAF3L'
@@ -48,12 +20,13 @@ const getSkillsTasks = asyncHandler(async (req, res) => {
     }).all().then(async (records) => {
         let result = []
         for (let index = 0; index < skillClassifications.length; index++) {
-            const fieldName = await getFieldName(skillClassifications[index])
-            const skillCategory = records[0].fields[fieldName]
+            const skillClassificationCode = skillClassifications[index]
+            const skillCategory = records[0].fields[skillClassificationCode]
+            const skillClassification = records[1].fields[skillClassificationCode]
 
             let skillClassificationData = []
             for (let recIndex = 2; recIndex < records.length; recIndex++) {
-                if (records[recIndex].fields[fieldName] !== undefined) {
+                if (records[recIndex].fields[skillClassificationCode] !== undefined) {
                     skillClassificationData.push(records[recIndex])
                 }
             }
@@ -79,9 +52,9 @@ const getSkillsTasks = asyncHandler(async (req, res) => {
 
 
             result.push({
-                skillClassificationCode: fieldName ,
+                skillClassificationCode: skillClassificationCode,
                 skillCategory: skillCategory,
-                skillClassification: skillClassifications[index],
+                skillClassification: skillClassification,
                 tasks: filtredSillClassificationData
             })
 
@@ -104,6 +77,82 @@ const getSkillsTasks = asyncHandler(async (req, res) => {
 })
 
 
+const getSkillsTasksMinorCategory = asyncHandler(async (req, res) => {
+    const apiKey = 'keygaICcTa39pAF3L'
+    const baseId = 'appM0M0J8QrVCmIa8'
+
+    const base = new Airtable({ apiKey: apiKey }).base(baseId)
+
+    const table = base('Task x Skill V4')
+    const view = 'Grid view'
+
+    const skillItemsCodes = req.body.data
+
+
+    await table.select({
+        view,
+        pageSize: 100
+    }).all().then(async (records) => {
+        let result = []
+
+        for (let index = 0; index < skillItemsCodes.length; index++) {
+            const skillItemCode = skillItemsCodes[index]
+            const skillCategory = records[0].fields[skillItemCode]
+            const skillClassification = records[1].fields[skillItemCode]
+            const skillItem = records[2].fields[skillItemCode]
+
+            let skillItemsData = []
+
+            for (let recIndex = 3; recIndex < records.length; recIndex++) {
+                if (records[recIndex].fields[skillItemCode] !== undefined) {
+                    skillItemsData.push(records[recIndex])
+                }
+            }
+
+            const filtredSkillItemsData = Array.from(
+                new Set(skillItemsData.map(record => record.fields['Task Major Category']))
+            ).map((taskMajorCategory) => ({
+                [taskMajorCategory]: Array.from(
+                    new Set(
+                        skillItemsData
+                            .filter(record => record.fields['Task Major Category'] === taskMajorCategory)
+                            .map(record => record.fields['Task Middle Category'])
+                    )
+                ).map((taskMiddleCategory) => ({
+                    [taskMiddleCategory]: Array.from(
+                        new Set(
+                            skillItemsData
+                                .filter(record =>
+                                    record.fields['Task Major Category'] === taskMajorCategory &&
+                                    record.fields['Task Middle Category'] === taskMiddleCategory
+                                ).map(record => record.fields['Task Minor Category Code'])
+                        )
+                    ).map((taskMinorCategoryCode) => ({
+                        [taskMinorCategoryCode]: skillItemsData
+                            .filter(record =>
+                                record.fields['Task Major Category'] === taskMajorCategory &&
+                                record.fields['Task Middle Category'] === taskMiddleCategory &&
+                                record.fields['Task Minor Category Code'] === taskMinorCategoryCode
+                            ).map(record => record.fields['Task Minor Category'])[0]
+                    }))
+                }))
+            }))
+
+
+            result.push({
+                skillItemCode: skillItemCode,
+                skillCategory: skillCategory,
+                skillClassification: skillClassification,
+                skillItem: skillItem,
+                tasks: filtredSkillItemsData
+            })
+        }
+
+        res.status(200).json(result)
+    })
+})
+
 module.exports = {
-    getSkillsTasks
+    getSkillsTasksMiddleCategory,
+    getSkillsTasksMinorCategory
 }
