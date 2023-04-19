@@ -67,7 +67,7 @@ const getJobList = asyncHandler(async (req, res) => {
                                                 record.fields['Job category'] === job
                                         )
                                         .map((record) => ({
-                                            jobCode: record.fields['Job code 2'] ,
+                                            jobCode: record.fields['Job code 2'],
                                             jobName: record.fields['Specialized field'] !== '-' ? record.fields['Specialized field'] : job,
                                             comment: record.fields['Comment']
                                         }))
@@ -109,31 +109,53 @@ const getJobSkills = asyncHandler(async (req, res) => {
     const tasks = Array.from(
         new Set(data.map(record => record.fields['Skill Category']))
     ).map(skillCategory => ({
-        [skillCategory]: Array.from(
+        skillCategoryCode: Array.from(
+            new Set(
+                data
+                    .filter(record => record.fields['Skill Category'] === skillCategory)
+                    .map(record => record.fields['Skill Item Code'].substring(0, 2))
+            )
+        )[0],
+        skillCategory: skillCategory,
+        skillClassifications: Array.from(
             new Set(
                 data
                     .filter(record => record.fields['Skill Category'] === skillCategory)
                     .map(record => record.fields['Skill Classification'])
             )
         ).map(skillClass => ({
+            skillClassificationCode: Array.from(
+                new Set(
+                    data
+                        .filter(record =>
+                            record.fields['Skill Category'] === skillCategory &&
+                            record.fields['Skill Classification'] === skillClass
+                        )
+                        .map(record => record.fields['Skill Item Code'].substring(0, 7))
+                )
+            )[0],
             skillClassification: skillClass,
             skillItems: Array.from(
                 data
                     .filter(record =>
                         record.fields['Skill Category'] === skillCategory &&
                         record.fields['Skill Classification'] === skillClass
-                    ).map(record => record.fields['Skill Item'])
+                    ).map(record => {
+                        return {
+                            [record.fields['Skill Item Code']] : record.fields['Skill Item']
+                        }
+                    })
             )
         }))
     }))
 
-    const updatedStucture = tasks.reduce((acc, curr) => {
+    /* const updatedStucture = tasks.reduce((acc, curr) => {
         const key = Object.keys(curr)[0];
         acc[key] = curr[key];
         return acc;
-    }, {});
+    }, {}); */
 
-    res.status(200).json(updatedStucture)
+    res.status(200).json(tasks)
 })
 
 
