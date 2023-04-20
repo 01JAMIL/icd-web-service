@@ -97,6 +97,8 @@ const getSkillsTasksMinorCategory = asyncHandler(async (req, res) => {
 
         for (let index = 0; index < skillItemsCodes.length; index++) {
             const skillItemCode = skillItemsCodes[index]
+            const skillCategoryCode = skillItemsCodes[index].substring(0, 2)
+            const skillClassificationCode = skillItemsCodes[index].substring(0, 7)
             const skillCategory = records[0].fields[skillItemCode]
             const skillClassification = records[1].fields[skillItemCode]
             const skillItem = records[2].fields[skillItemCode]
@@ -140,9 +142,11 @@ const getSkillsTasksMinorCategory = asyncHandler(async (req, res) => {
 
 
             result.push({
-                skillItemCode: skillItemCode,
+                skillCategoryCode: skillCategoryCode ,
                 skillCategory: skillCategory,
+                skillClassificationCode: skillClassificationCode ,
                 skillClassification: skillClassification,
+                skillItemCode: skillItemCode,
                 skillItem: skillItem,
                 tasks: filtredSkillItemsData
             })
