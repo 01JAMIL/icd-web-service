@@ -140,11 +140,10 @@ const getJobSkills = asyncHandler(async (req, res) => {
                     .filter(record =>
                         record.fields['Skill Category'] === skillCategory &&
                         record.fields['Skill Classification'] === skillClass
-                    ).map(record => {
-                        return {
-                            [record.fields['Skill Item Code']] : record.fields['Skill Item']
-                        }
-                    })
+                    ).map(record => ({
+                        skillItemCode: record.fields['Skill Item Code'],
+                        skillItem: record.fields['Skill Item']
+                    }))
             )
         }))
     }))
