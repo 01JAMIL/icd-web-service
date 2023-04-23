@@ -112,39 +112,57 @@ const getSkillsTasksMinorCategory = asyncHandler(async (req, res) => {
             }
 
             const filtredSkillItemsData = Array.from(
-                new Set(skillItemsData.map(record => record.fields['Task Major Category']))
-            ).map((taskMajorCategory) => ({
-                [taskMajorCategory]: Array.from(
-                    new Set(
-                        skillItemsData
-                            .filter(record => record.fields['Task Major Category'] === taskMajorCategory)
-                            .map(record => record.fields['Task Middle Category'])
+                new Set(skillItemsData.map(record => record.fields['Task Minor Category Code'].substring(0, 4)))
+            ).map((taskMajorCategoryCode) => ({
+                taskMajorCategoryCode: taskMajorCategoryCode,
+                taskMajorCategory: skillItemsData
+                    .filter(
+                        record =>
+                            record.fields['Task Minor Category Code'].substring(0, 4) === taskMajorCategoryCode
                     )
-                ).map((taskMiddleCategory) => ({
-                    [taskMiddleCategory]: Array.from(
-                        new Set(
-                            skillItemsData
-                                .filter(record =>
-                                    record.fields['Task Major Category'] === taskMajorCategory &&
-                                    record.fields['Task Middle Category'] === taskMiddleCategory
-                                ).map(record => record.fields['Task Minor Category Code'])
+                    .map(record => record.fields['Task Major Category'])[0],
+                taskMiddleCategories: Array.from(
+                    new Set(
+                        skillItemsData.filter(
+                            record =>
+                                record.fields['Task Minor Category Code'].substring(0, 4) === taskMajorCategoryCode
+                        ).map(record => record.fields['Task Minor Category Code'].substring(0, 7))
+                    )
+                ).map((taskMiddleCategoryCode) => ({
+                    taskMiddleCategoryCode: taskMiddleCategoryCode,
+                    taskMiddleCategory: skillItemsData
+                        .filter(
+                            record =>
+                                record.fields['Task Minor Category Code'].substring(0, 4) === taskMajorCategoryCode &&
+                                record.fields['Task Minor Category Code'].substring(0, 7) === taskMiddleCategoryCode
                         )
+                        .map(record => record.fields['Task Middle Category'])[0],
+                    taskMinorCategories: Array.from(
+                        skillItemsData.filter(
+                            record =>
+                                record.fields['Task Minor Category Code'].substring(0, 4) === taskMajorCategoryCode &&
+                                record.fields['Task Minor Category Code'].substring(0, 7) === taskMiddleCategoryCode
+                        ).map(record => record.fields['Task Minor Category Code'])
                     ).map((taskMinorCategoryCode) => ({
-                        [taskMinorCategoryCode]: skillItemsData
-                            .filter(record =>
-                                record.fields['Task Major Category'] === taskMajorCategory &&
-                                record.fields['Task Middle Category'] === taskMiddleCategory &&
-                                record.fields['Task Minor Category Code'] === taskMinorCategoryCode
-                            ).map(record => record.fields['Task Minor Category'])[0]
+                        taskMinorCategoryCode: taskMinorCategoryCode,
+                        taskMinorCategory: skillItemsData
+                            .filter(
+                                record =>
+                                    record.fields['Task Minor Category Code'].substring(0, 4) === taskMajorCategoryCode &&
+                                    record.fields['Task Minor Category Code'].substring(0, 7) === taskMiddleCategoryCode &&
+                                    record.fields['Task Minor Category Code'] === taskMinorCategoryCode
+                            )
+                            .map(record => record.fields['Task Minor Category'])[0],
                     }))
                 }))
+
             }))
 
 
             result.push({
-                skillCategoryCode: skillCategoryCode ,
+                skillCategoryCode: skillCategoryCode,
                 skillCategory: skillCategory,
-                skillClassificationCode: skillClassificationCode ,
+                skillClassificationCode: skillClassificationCode,
                 skillClassification: skillClassification,
                 skillItemCode: skillItemCode,
                 skillItem: skillItem,
