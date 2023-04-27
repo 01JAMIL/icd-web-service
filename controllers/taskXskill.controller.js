@@ -134,14 +134,14 @@ const getSkillsTasksMinorCategory = asyncHandler(async (req, res) => {
                         .filter(
                             record =>
                                 record.fields['Task Minor Category Code'].substring(0, 4) === taskMajorCategoryCode &&
-                                record.fields['Task Minor Category Code'].substring(0, 7) === taskMiddleCategoryCode
+                                record.fields['Task Minor Category Code'].substring(0, 6) === taskMiddleCategoryCode
                         )
                         .map(record => record.fields['Task Middle Category'])[0],
                     taskMinorCategories: Array.from(
                         skillItemsData.filter(
                             record =>
                                 record.fields['Task Minor Category Code'].substring(0, 4) === taskMajorCategoryCode &&
-                                record.fields['Task Minor Category Code'].substring(0, 7) === taskMiddleCategoryCode
+                                record.fields['Task Minor Category Code'].substring(0, 6) === taskMiddleCategoryCode
                         ).map(record => record.fields['Task Minor Category Code'])
                     ).map((taskMinorCategoryCode) => ({
                         taskMinorCategoryCode: taskMinorCategoryCode,
@@ -149,7 +149,7 @@ const getSkillsTasksMinorCategory = asyncHandler(async (req, res) => {
                             .filter(
                                 record =>
                                     record.fields['Task Minor Category Code'].substring(0, 4) === taskMajorCategoryCode &&
-                                    record.fields['Task Minor Category Code'].substring(0, 7) === taskMiddleCategoryCode &&
+                                    record.fields['Task Minor Category Code'].substring(0, 6) === taskMiddleCategoryCode &&
                                     record.fields['Task Minor Category Code'] === taskMinorCategoryCode
                             )
                             .map(record => record.fields['Task Minor Category'])[0],
