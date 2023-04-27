@@ -126,7 +126,7 @@ const getSkillsTasksMinorCategory = asyncHandler(async (req, res) => {
                         skillItemsData.filter(
                             record =>
                                 record.fields['Task Minor Category Code'].substring(0, 4) === taskMajorCategoryCode
-                        ).map(record => record.fields['Task Minor Category Code'].substring(0, 7))
+                        ).map(record => record.fields['Task Minor Category Code'].substring(0, 6))
                     )
                 ).map((taskMiddleCategoryCode) => ({
                     taskMiddleCategoryCode: taskMiddleCategoryCode,
