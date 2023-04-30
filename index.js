@@ -5,7 +5,6 @@ const cors = require('cors')
 const skillsRouter = require('./routes/skills.route')
 const tasksRouter = require('./routes/tasks.route')
 const tasksSkillsRouter = require('./routes/taskXskill.route')
-const cache = require('apicache').middleware
 require('dotenv').config()
 
 
@@ -16,7 +15,6 @@ app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cors())
-app.use(cache('5 minutes'))
 
 
 app.use('/api/skills', skillsRouter)
