@@ -17,29 +17,27 @@ const createDocument = async () => {
         format: 'json'
     })
 
-    const isExists = response.filter(index => index.index === 'skills-by-job-code')
-
-    if (isExists.length === 0) {
-        await client.indices.create({
-            index: 'skills-by-job-code',
-            body: {
-                mappings: {
-                    properties: {
-                        element: {
-                            properties: {
-                                skillCategoryCode: { type: 'keyword' },
-                                skillCategory: { type: 'text' },
-                                skillClassifications: {
-                                    type: 'nested',
-                                    properties: {
-                                        skillClassificationCode: { type: 'keyword' },
-                                        skillClassification: { type: 'text' },
-                                        skillItems: {
-                                            type: 'nested',
-                                            properties: {
-                                                skillItemCode: { type: 'keyword' },
-                                                skillItem: { type: 'text' },
-                                            },
+    await client.indices.delete({ index: 'skills-by-job-code' })
+    await sleep(3000)
+    await client.indices.create({
+        index: 'skills-by-job-code',
+        body: {
+            mappings: {
+                properties: {
+                    element: {
+                        properties: {
+                            skillCategoryCode: { type: 'keyword' },
+                            skillCategory: { type: 'text' },
+                            skillClassifications: {
+                                type: 'nested',
+                                properties: {
+                                    skillClassificationCode: { type: 'keyword' },
+                                    skillClassification: { type: 'text' },
+                                    skillItems: {
+                                        type: 'nested',
+                                        properties: {
+                                            skillItemCode: { type: 'keyword' },
+                                            skillItem: { type: 'text' },
                                         },
                                     },
                                 },
@@ -48,10 +46,14 @@ const createDocument = async () => {
                     },
                 },
             },
-        });
-    } else {
-        await client.indices.delete({ index: 'skills-by-job-code' });
-    }
+        },
+    });
+
+
+}
+
+async function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
