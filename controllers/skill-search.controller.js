@@ -120,7 +120,7 @@ const search = asyncHandler(async (req, res) => {
                     const searchWords = input.toLowerCase().split(' ');
                     return searchWords.every(word => item.skillItem.toLowerCase().includes(word));
                 }) :
-                0
+                ''
         }))
     );
 
