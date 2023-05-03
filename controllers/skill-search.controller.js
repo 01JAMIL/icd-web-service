@@ -49,6 +49,8 @@ const createDocument = async () => {
                 },
             },
         });
+    } else {
+        await client.indices.delete({ index: 'skills-by-job-code' });
     }
 }
 
@@ -56,7 +58,6 @@ const createDocument = async () => {
 const saveDataIntoDocument = asyncHandler(async (req, res) => {
 
     const { jobCode } = req.params
-    await client.indices.delete({ index: 'skills-by-job-code' });
     await createDocument()
     const url = `https://test-web-service-3z32.onrender.com/api/skills/get-job-skill/${jobCode}`
     const response = await axios.get(url);
