@@ -5,6 +5,7 @@ const cors = require('cors')
 const skillsRouter = require('./routes/skills.route')
 const tasksRouter = require('./routes/tasks.route')
 const tasksSkillsRouter = require('./routes/taskXskill.route')
+const skillsSearch = require('./routes/skill-search.route')
 require('dotenv').config()
 
 
@@ -20,6 +21,7 @@ app.use(cors())
 app.use('/api/skills', skillsRouter)
 app.use('/api/tasks', tasksRouter)
 app.use('/api/tasksxskills', tasksSkillsRouter)
+app.use('/api/search', skillsSearch)
 
 const port = process.env.PORT || 3100
 
