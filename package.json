@@ -13,6 +13,7 @@
   "dependencies": {
     "@elastic/elasticsearch": "^8.7.0",
     "airtable": "^0.11.6",
+    "axios": "^1.4.0",
     "chalk": "^5.2.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
