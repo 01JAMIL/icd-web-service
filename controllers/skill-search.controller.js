@@ -115,7 +115,12 @@ const search = asyncHandler(async (req, res) => {
             skillItems: classification.skillItems.filter(item => {
                 const searchWords = input.toLowerCase().split(' ');
                 return searchWords.every(word => item.skillItem.toLowerCase().includes(word));
-            }),
+            }).length > 0 ?
+                classification.skillItems.filter(item => {
+                    const searchWords = input.toLowerCase().split(' ');
+                    return searchWords.every(word => item.skillItem.toLowerCase().includes(word));
+                }) :
+                0
         }))
     );
 
