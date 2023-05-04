@@ -13,15 +13,23 @@ const client = new Client({
 })
 
 const createDocument = async () => {
-    const response = await client.cat.indices({
-        format: 'json'
-    })
+    const indexExists = await client.indices.exists({ index: 'skills-by-job-code' })
+    console.log(indexExists)
+    if (indexExists) {
+        await client.indices.delete({ index: 'skills-by-job-code' })
+    }
 
-    await client.indices.delete({ index: 'skills-by-job-code' })
-    await sleep(3000)
     await client.indices.create({
         index: 'skills-by-job-code',
         body: {
+            // Adding "wait_for_active_shards": "1" ensures that the index is ready before proceeding
+            settings: {
+                "index": {
+                    "number_of_shards": 1,
+                    "number_of_replicas": 1
+                },
+                "index.write.wait_for_active_shards": "1",
+            },
             mappings: {
                 properties: {
                     element: {
@@ -47,13 +55,7 @@ const createDocument = async () => {
                 },
             },
         },
-    });
-
-
-}
-
-async function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    })
 }
 
 
@@ -61,14 +63,14 @@ const saveDataIntoDocument = asyncHandler(async (req, res) => {
 
     const { jobCode } = req.params
     await createDocument()
-    const url = `https://test-web-service-3z32.onrender.com/api/skills/get-job-skill/${jobCode}`
-    const response = await axios.get(url);
+    const url = `https://test-web-service-3z32.onrender.com/api/skills/get-job-skill/${jobCode}`;
+    const response = await axios.get(url)
     const bulkBody = [];
 
     response.data.forEach((element, index) => {
-        bulkBody.push({ index: { _index: 'skills-by-job-code', _id: index + 1 } })
-        bulkBody.push({ element })
-    });
+        bulkBody.push({ index: { _index: 'skills-by-job-code' } })
+        bulkBody.push({ element });
+    })
 
     await client.bulk({
         body: bulkBody,
@@ -107,22 +109,19 @@ const search = asyncHandler(async (req, res) => {
 
 
     const matchedSkillItems = response.hits.hits.flatMap(hit =>
-        hit._source.element.skillClassifications.flatMap(classification => ({
-            skillCategoryCode: hit._source.element.skillCategoryCode,
-            skillCategory: hit._source.element.skillCategory,
-            skillClassificationCode: classification.skillClassificationCode,
-            skillClassification: classification.skillClassification,
-            skillItems: classification.skillItems.filter(item => {
+        hit._source.element.skillClassifications.flatMap(classification => {
+            const filteredSkillItems = classification.skillItems.filter(item => {
                 const searchWords = input.toLowerCase().split(' ');
                 return searchWords.every(word => item.skillItem.toLowerCase().includes(word));
-            }).length > 0 ?
-                classification.skillItems.filter(item => {
-                    const searchWords = input.toLowerCase().split(' ');
-                    return searchWords.every(word => item.skillItem.toLowerCase().includes(word));
-                }) :
-                ''
-        }))
-    );
+            });
+            return {
+                skillCategoryCode: hit._source.element.skillCategoryCode, skillCategory: hit._source.element.skillCategory,
+                skillClassificationCode: classification.skillClassificationCode,
+                skillClassification: classification.skillClassification,
+                skillItems: filteredSkillItems.length > 0 ? filteredSkillItems : '',
+            };
+        })
+    )
 
     res.status(200).json(matchedSkillItems)
 })
