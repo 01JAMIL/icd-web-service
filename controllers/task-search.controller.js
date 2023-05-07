@@ -119,7 +119,7 @@ const search = asyncHandler(async (req, res) => {
     })
 
 
-    const matchedTasks = response.hits.hits.flatMap(hit =>
+    /* const matchedTasks = response.hits.hits.flatMap(hit =>
         hit._source.element.tasks.flatMap(task => {
 
             const filteredSkillItems = task.taskMiddleCategories.map(taskMiddleCategory => {
@@ -145,7 +145,46 @@ const search = asyncHandler(async (req, res) => {
                 tasks: updatedTask
             };
         })
-    )
+    ) */
+
+    const matchedTasks = response.hits.hits.flatMap(hit =>
+        hit._source.element.tasks.flatMap(task => {
+
+            const filteredMiddleCategories = task.taskMiddleCategories.flatMap(taskMiddleCategory => {
+                const filteredMinorCategories = taskMiddleCategory.taskMinorCategories.filter(minorCategory => {
+                    const searchWords = input.toLowerCase().split(' ');
+                    return searchWords.every(word => minorCategory.taskMinorCategory.toLowerCase().includes(word));
+                });
+
+                if (filteredMinorCategories.length > 0) {
+                    filteredMinorCategories[0].taskMinorCategoryCode = filteredMinorCategories[0].taskMinorCategoryCode + '-' + hit._source.element.skillItemCode;
+                    return {
+                        taskMiddleCategoryCode: taskMiddleCategory.taskMiddleCategoryCode,
+                        taskMiddleCategory: taskMiddleCategory.taskMiddleCategory,
+                        taskMinorCategories: filteredMinorCategories
+                    };
+                } else {
+                    return [];
+                }
+            });
+
+            return filteredMiddleCategories.map(filteredMiddleCategory => {
+                return {
+                    skillCategoryCode: hit._source.element.skillCategoryCode,
+                    skillCategory: hit._source.element.skillCategory,
+                    skillClassificationCode: hit._source.element.skillClassificationCode,
+                    skillClassification: hit._source.element.skillClassification,
+                    skillItemCode: hit._source.element.skillItemCode,
+                    skillItem: hit._source.element.skillItem,
+                    taskMajorCategoryCode: task.taskMajorCategoryCode,
+                    taskMajorCategory: task.taskMajorCategory,
+                    taskMiddleCategoryCode: filteredMiddleCategory.taskMiddleCategoryCode,
+                    taskMiddleCategory: filteredMiddleCategory.taskMiddleCategory,
+                    tasks: filteredMiddleCategory.taskMinorCategories
+                };
+            });
+        })
+    );
 
     res.status(200).json(matchedTasks)
 })
