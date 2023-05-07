@@ -94,20 +94,24 @@ const saveDataIntoDocument = asyncHandler(async (req, res) => {
 const search = asyncHandler(async (req, res) => {
 
     const { input } = req.body
-    const response = await client.search({
-        index: 'tasks-skill-items-code',
-        query: {
-            nested: {
-                path: "element.tasks",
-                query: {
-                    nested: {
-                        path: "element.tasks.taskMiddleCategories",
-                        query: {
-                            nested: {
-                                path: "element.tasks.taskMiddleCategories.taskMinorCategories",
-                                query: {
-                                    match_phrase_prefix: {
-                                        "element.tasks.taskMiddleCategories.taskMinorCategories.taskMinorCategory": input
+
+
+    const response =
+        !(!input || input === '') ? await client.search({
+            index: 'tasks-skill-items-code',
+            query: {
+                nested: {
+                    path: "element.tasks",
+                    query: {
+                        nested: {
+                            path: "element.tasks.taskMiddleCategories",
+                            query: {
+                                nested: {
+                                    path: "element.tasks.taskMiddleCategories.taskMinorCategories",
+                                    query: {
+                                        match_phrase_prefix: {
+                                            "element.tasks.taskMiddleCategories.taskMinorCategories.taskMinorCategory": input
+                                        }
                                     }
                                 }
                             }
@@ -115,37 +119,10 @@ const search = asyncHandler(async (req, res) => {
                     }
                 }
             }
-        }
-    })
-
-
-    /* const matchedTasks = response.hits.hits.flatMap(hit =>
-        hit._source.element.tasks.flatMap(task => {
-
-            const filteredSkillItems = task.taskMiddleCategories.map(taskMiddleCategory => {
-                return taskMiddleCategory.taskMinorCategories.filter(minorCategory => {
-                    const searchWords = input.toLowerCase().split(' ');
-                    return searchWords.every(word => minorCategory.taskMinorCategory.toLowerCase().includes(word));
-                })
-            });
-            const updatedTask = filteredSkillItems.filter(e => e.length > 0)[0] ? filteredSkillItems.filter(e => e.length > 0)[0] : ''
-
-            if (updatedTask !== '') {
-                updatedTask[0].taskMinorCategoryCode = updatedTask[0].taskMinorCategoryCode + '-' + hit._source.element.skillItemCode
-            }
-            return {
-                skillCategoryCode: hit._source.element.skillCategoryCode,
-                skillCategory: hit._source.element.skillCategory,
-                skillClassificationCode: hit._source.element.skillClassificationCode,
-                skillClassification: hit._source.element.skillClassification,
-                skillItemCode: hit._source.element.skillItemCode,
-                skillItem: hit._source.element.skillItem,
-                taskMajorCategoryCode: task.taskMajorCategoryCode,
-                taskMajorCategory: task.taskMajorCategory,
-                tasks: updatedTask
-            };
-        })
-    ) */
+        }) :
+            await client.search({
+                index: 'tasks-skill-items-code'
+            })
 
     const matchedTasks = response.hits.hits.flatMap(hit =>
         hit._source.element.tasks.flatMap(task => {

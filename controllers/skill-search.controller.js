@@ -86,26 +86,30 @@ const search = asyncHandler(async (req, res) => {
 
     const { input } = req.body
 
-    const response = await client.search({
-        index: 'skills-by-job-code',
-        body: {
-            query: {
-                nested: {
-                    path: "element.skillClassifications",
-                    query: {
-                        nested: {
-                            path: "element.skillClassifications.skillItems",
-                            query: {
-                                match_phrase_prefix: {
-                                    'element.skillClassifications.skillItems.skillItem': input,
+    const response =
+        !(!input || input === '') ? await client.search({
+            index: 'skills-by-job-code',
+            body: {
+                query: {
+                    nested: {
+                        path: "element.skillClassifications",
+                        query: {
+                            nested: {
+                                path: "element.skillClassifications.skillItems",
+                                query: {
+                                    match_phrase_prefix: {
+                                        'element.skillClassifications.skillItems.skillItem': input,
+                                    },
                                 },
                             },
                         },
                     },
                 },
-            },
-        }
-    })
+            }
+        }) :
+            await client.search({
+                index: 'skills-by-job-code'
+            })
 
 
     const matchedSkillItems = response.hits.hits.flatMap(hit =>
