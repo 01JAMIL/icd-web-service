@@ -128,6 +128,11 @@ const search = asyncHandler(async (req, res) => {
                     return searchWords.every(word => minorCategory.taskMinorCategory.toLowerCase().includes(word));
                 })
             });
+            const updatedTask = filteredSkillItems.filter(e => e.length > 0)[0] ? filteredSkillItems.filter(e => e.length > 0)[0] : ''
+
+            if (updatedTask !== '') {
+                updatedTask[0].taskMinorCategoryCode = updatedTask[0].taskMinorCategoryCode + '-' + hit._source.element.skillItemCode
+            }
             return {
                 skillCategoryCode: hit._source.element.skillCategoryCode,
                 skillCategory: hit._source.element.skillCategory,
@@ -137,9 +142,7 @@ const search = asyncHandler(async (req, res) => {
                 skillItem: hit._source.element.skillItem,
                 taskMajorCategoryCode: task.taskMajorCategoryCode,
                 taskMajorCategory: task.taskMajorCategory,
-                tasks: filteredSkillItems.filter(e => e.length > 0)[0] ? filteredSkillItems.filter(e => e.length > 0)[0] : ''
-
-
+                tasks: updatedTask
             };
         })
     )
