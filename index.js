@@ -7,6 +7,8 @@ const tasksRouter = require('./routes/tasks.route')
 const tasksSkillsRouter = require('./routes/taskXskill.route')
 const skillsSearch = require('./routes/skill-search.route')
 const tasksSearch = require('./routes/task-search-route')
+const mailRouter = require('./routes/send-mail.route')
+
 require('dotenv').config()
 
 
@@ -24,6 +26,7 @@ app.use('/api/tasks', tasksRouter)
 app.use('/api/tasksxskills', tasksSkillsRouter)
 app.use('/api/search', skillsSearch)
 app.use('/api/search', tasksSearch)
+app.use('/api/mail', mailRouter)
 
 const port = process.env.PORT || 3100
 
