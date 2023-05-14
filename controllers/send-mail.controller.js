@@ -3,20 +3,19 @@ const asyncHandler = require('express-async-handler')
 
 
 const sendMail = asyncHandler(async (req, res) => {
-    const { toEmail, jobDescription } = req.body
+    const { toEmails, jobDescription } = req.body
+    // toEmails is an array of emails
+
+    const personalizations = toEmails.map(email => ({
+        // Create a personalization for each email
+        to: [{ email }],
+        dynamic_template_data: { jobDescription },
+    }));
 
     const response = await axios.post(
         'https://api.sendgrid.com/v3/mail/send', {
 
-        personalizations: [
-            {
-                to: [{ email: toEmail }],
-
-                dynamic_template_data: {
-                    jobDescription: jobDescription,
-                },
-            }
-        ],
+        personalizations,
         from: { email: process.env.SENDER_EMAIL },
         template_id: process.env.TEMPLATE_ID,
     }, {
