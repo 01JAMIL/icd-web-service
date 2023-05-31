@@ -14,6 +14,7 @@ const printPdf = asyncHandler(async (req, res) => {
 
     const browser = await puppeteer.launch({
         headless: 'new',
+        executablePath: 'C:\\Users\\user\\.cache\\puppeteer\\chrome\\win64-113.0.5672.63\\chrome-win64\\chrome.exe',
     });
 
     const page = await browser.newPage()
