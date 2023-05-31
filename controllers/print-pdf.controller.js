@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer')
 const asyncHandler = require('express-async-handler')
 
 const printPdf = asyncHandler(async (req, res) => {
