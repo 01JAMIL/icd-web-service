@@ -9,8 +9,8 @@ const printPdf = asyncHandler(async (req, res) => {
         return res.status(400).send('Bad request');
     }
 
-    jobDescription = jobDescription.replace(/ /g, " ")
-    jobDescription = jobDescription.replace(/\n/g, "\n")
+    /* jobDescription = jobDescription.replace(/ /g, " ")
+    jobDescription = jobDescription.replace(/\n/g, "\n") */
 
     const browser = await puppeteer.launch({
         headless: 'new',
