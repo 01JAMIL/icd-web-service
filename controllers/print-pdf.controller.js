@@ -62,7 +62,7 @@ const printPdf = asyncHandler(async (req, res) => {
         'Content-Length': pdf.length,
         'Content-Disposition': 'attachment; filename="Job Description.pdf"',
     });
-    res.status(200).send(pdf);
+    res.send(pdf);
 })
 
 module.exports = {
