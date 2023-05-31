@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer')
 const asyncHandler = require('express-async-handler')
+const chromium = require('chrome-aws-lambda')
 
 const printPdf = asyncHandler(async (req, res) => {
 
@@ -12,9 +13,17 @@ const printPdf = asyncHandler(async (req, res) => {
     /* jobDescription = jobDescription.replace(/ /g, " ")
     jobDescription = jobDescription.replace(/\n/g, "\n") */
 
-    const browser = await puppeteer.launch({
+    /* const browser = await puppeteer.launch({
         headless: 'new',
         executablePath: 'C:\\Users\\user\\.cache\\puppeteer\\chrome\\win64-113.0.5672.63\\chrome-win64\\chrome.exe',
+    }); */
+
+    const browser = await puppeteer.launch({
+        headless: 'new',
+        executablePath: await chromium.executablePath,
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        ignoreHTTPSErrors: true,
     });
 
     const page = await browser.newPage()
