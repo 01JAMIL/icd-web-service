@@ -30,7 +30,7 @@ app.use('/api/search', tasksSearch)
 app.use('/api/mail', mailRouter)
 app.use('/api/pdf', pdfRouter)
 
-app.get('/api/helth-check', async (req, res) => {
+app.get('/api/healt-check', async (req, res) => {
     return res.status(200).json("ok")
 })
 
