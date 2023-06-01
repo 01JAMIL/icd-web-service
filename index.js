@@ -30,6 +30,10 @@ app.use('/api/search', tasksSearch)
 app.use('/api/mail', mailRouter)
 app.use('/api/pdf', pdfRouter)
 
+app.get('/api/helth-check', async (req, res) => {
+    return res.status(200).json("ok")
+})
+
 const port = process.env.PORT || 3100
 
 app.listen(port, () => {
