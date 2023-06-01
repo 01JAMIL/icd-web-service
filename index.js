@@ -25,12 +25,8 @@ app.use(cors())
 app.use('/api/skills', skillsRouter)
 app.use('/api/tasks', tasksRouter)
 app.use('/api/tasksxskills', tasksSkillsRouter)
-app.use('/api/search', skillsSearch)
-app.use('/api/search', tasksSearch)
-app.use('/api/mail', mailRouter)
-app.use('/api/pdf', pdfRouter)
 
-app.get('/api/healt-check', async (req, res) => {
+app.get('/api/health-check', async (req, res) => {
     return res.status(200).json("ok")
 })
 
